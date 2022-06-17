@@ -12,7 +12,7 @@ const createitem = async (req, res) => {
   const createdBy = req.user.id;
 
   const { urlLink, imgLink, title, description, badge, author, date } =
-    req.params;
+    req.body;
 
   const linkId = new mongoose.Types.ObjectId();
 
@@ -53,7 +53,7 @@ const createitem = async (req, res) => {
           .catch((error) => {
             response.success = false;
             response.message = "Some error has occured";
-            console.log(response);
+            console.log(response, error);
             res.status(500).send(response);
           });
       } else {
@@ -102,7 +102,7 @@ const createitem = async (req, res) => {
 // Delete
 const deleteitem = async (req, res) => {
   const createdBy = req.user.id;
-  const linkId = req.params.id;
+  const linkId = req.body.linkId;
 
   if (!createdBy) {
     response.success = false;
@@ -117,7 +117,7 @@ const deleteitem = async (req, res) => {
         let array = result.link;
         // remove alement from array
         let updatedArray = array.filter((element) => {
-          return element._id != linkId;
+          return element.link != linkId;
         });
         // let updatedArray = [...array, { url: urlLink, _id: linkId }];
         await Favourite.findOneAndUpdate(
@@ -149,4 +149,37 @@ const deleteitem = async (req, res) => {
     });
 };
 
-module.exports = { createitem, deleteitem };
+// Get all items
+const getitems = async (req, res) => {
+  const createdBy = req.user.id;
+  if (!createdBy) {
+    response.success = false;
+    response.message = "Please validate using authtoken";
+    console.log(response);
+    return res.status(401).send("Please validate using authtoken");
+  }
+  await Favourite.find({ createdBy: createdBy })
+    .then((result) => {
+      if (result) {
+        response.success = true;
+        response.message = "Items found successfully";
+        console.log(response);
+        return res
+          .status(200)
+          .send({ numberOfItems: result[0].link.length, items: result });
+      } else {
+        response.success = false;
+        response.message = "No items found";
+        console.log(response);
+        return res.status(404).send({ numberOfItems: 0 });
+      }
+    })
+    .catch((error) => {
+      response.success = false;
+      response.message = "Some error has occured";
+      console.log(response, error);
+      res.status(500).send(error);
+    });
+};
+
+module.exports = { createitem, deleteitem, getitems };
