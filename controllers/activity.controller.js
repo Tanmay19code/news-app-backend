@@ -10,7 +10,9 @@ const response = {
 // Create new item
 const createitem = async (req, res) => {
   const createdBy = req.user.id;
-  const urlLink = req.params.link;
+
+  const { urlLink, imgLink, title, description, badge, author, date } =
+    req.params;
 
   const linkId = new mongoose.Types.ObjectId();
 
@@ -25,7 +27,19 @@ const createitem = async (req, res) => {
     .then(async (result) => {
       if (result) {
         let array = result.link;
-        let updatedArray = [...array, { url: urlLink, _id: linkId }];
+        let updatedArray = [
+          ...array,
+          {
+            url: urlLink,
+            _id: linkId,
+            img: imgLink,
+            title: title,
+            description: description,
+            badge: badge,
+            author: author,
+            date: date,
+          },
+        ];
         await Favourite.findOneAndUpdate(
           { createdBy: createdBy },
           { link: updatedArray }
@@ -43,7 +57,18 @@ const createitem = async (req, res) => {
             res.status(500).send(response);
           });
       } else {
-        linkArray = [{ url: urlLink, _id: linkId }];
+        linkArray = [
+          {
+            url: urlLink,
+            _id: linkId,
+            img: imgLink,
+            title: title,
+            description: description,
+            badge: badge,
+            author: author,
+            date: date,
+          },
+        ];
         let newFavourite = { createdBy: createdBy, link: linkArray };
         await Favourite.create(newFavourite)
           .then((result2) => {

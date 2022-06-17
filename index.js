@@ -30,5 +30,5 @@ app.use("/api/auth", require("./routes/auth.route.js"));
 app.use("/api/activity", require("./routes/activity.route.js"));
 
 app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+  console.log(`Server is running at http://localhost:5000`);
 });
